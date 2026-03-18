@@ -3,6 +3,7 @@ package com.example.e_learning.controller;
 import com.example.e_learning.dto.request.CourseCreateRequest;
 import com.example.e_learning.dto.request.CourseUpdateRequest;
 import com.example.e_learning.dto.response.CourseResponse;
+import com.example.e_learning.dto.response.CourseSummaryResponse;
 import com.example.e_learning.service.CourseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,20 @@ public class CourseController {
     @GetMapping
     public ResponseEntity<Page<CourseResponse>> getAllCourses(@PageableDefault(size = 10) Pageable pageable) {
         return ResponseEntity.ok(courseService.getAllCourses(pageable));
+    }
+
+    @GetMapping("/public")
+    public ResponseEntity<Page<CourseSummaryResponse>> getPublishedCourses(
+            @RequestParam(required = false) Long categoryId,
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(courseService.getPublishedCourses(categoryId, pageable));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<CourseSummaryResponse>> searchCourses(
+            @RequestParam String keyword,
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(courseService.searchCourses(keyword, pageable));
     }
 
     @GetMapping("/{id}")

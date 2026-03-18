@@ -3,6 +3,7 @@ package com.example.e_learning.service.impl;
 import com.example.e_learning.dto.request.CourseCreateRequest;
 import com.example.e_learning.dto.request.CourseUpdateRequest;
 import com.example.e_learning.dto.response.CourseResponse;
+import com.example.e_learning.dto.response.CourseSummaryResponse;
 import com.example.e_learning.exception.InvalidCoursePublishException;
 import com.example.e_learning.exception.ResourceNotFoundException;
 import com.example.e_learning.model.Category;
@@ -162,6 +163,35 @@ public class CourseServiceImpl implements CourseService {
         course.setStatus(CourseStatus.DRAFT);
         Course unpublishedCourse = courseRepository.save(course);
         return mapToResponse(unpublishedCourse);
+    }
+
+    @Override
+    public Page<CourseSummaryResponse> getPublishedCourses(Long categoryId, Pageable pageable) {
+        Page<Course> courses;
+        if (categoryId != null) {
+            courses = courseRepository.findByStatusAndCategoryId(CourseStatus.PUBLISHED, categoryId, pageable);
+        } else {
+            courses = courseRepository.findByStatus(CourseStatus.PUBLISHED, pageable);
+        }
+        return courses.map(this::mapToSummary);
+    }
+
+    @Override
+    public Page<CourseSummaryResponse> searchCourses(String keyword, Pageable pageable) {
+        return courseRepository.searchByKeyword(CourseStatus.PUBLISHED, keyword, pageable)
+                .map(this::mapToSummary);
+    }
+
+    private CourseSummaryResponse mapToSummary(Course course) {
+        return CourseSummaryResponse.builder()
+                .id(course.getId())
+                .title(course.getTitle())
+                .thumbnailUrl(course.getThumbnailUrl())
+                .price(course.getPrice())
+                .teacherName(course.getTeacher() != null ? course.getTeacher().getFullName() : null)
+                .averageRating(course.getAverageRating())
+                .totalReviews(course.getTotalReviews())
+                .build();
     }
 
     private CourseResponse mapToResponse(Course course) {

@@ -41,6 +41,9 @@ public class Course {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    private Double averageRating = 0.0;
+    private Integer totalReviews = 0;
+
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
     private List<Section> sections;
 }
