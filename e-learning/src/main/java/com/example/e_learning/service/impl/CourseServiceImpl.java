@@ -16,6 +16,7 @@ import com.example.e_learning.repository.CourseRepository;
 import com.example.e_learning.repository.UserRepository;
 import com.example.e_learning.service.CourseService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -53,6 +54,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Cacheable(value = "courses")
     public Page<CourseResponse> getAllCourses(Pageable pageable) {
         return courseRepository.findAll(pageable)
                 .map(this::mapToResponse);

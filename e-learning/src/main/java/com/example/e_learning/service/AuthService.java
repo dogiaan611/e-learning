@@ -11,6 +11,8 @@ import com.example.e_learning.model.enums.UserRole;
 import com.example.e_learning.repository.RoleRepository;
 import com.example.e_learning.repository.UserRepository;
 import com.example.e_learning.security.JwtUtils;
+import com.example.e_learning.config.RabbitMQConfig;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -41,6 +43,9 @@ public class AuthService {
 
     @Autowired
     JwtUtils jwtUtils;
+
+    @Autowired
+    RabbitTemplate rabbitTemplate;
 
     public JwtResponse authenticateUser(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
@@ -78,6 +83,9 @@ public class AuthService {
 
         user.setRoles(roles);
         userRepository.save(user);
+
+        // Send async email via RabbitMQ
+        rabbitTemplate.convertAndSend(RabbitMQConfig.EXCHANGE, RabbitMQConfig.ROUTING_KEY, user.getEmail());
     }
 
     public UserResponse getProfile(String email) {
